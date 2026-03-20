@@ -119,17 +119,31 @@ function toPrismaData(data: CreatePropertyInput | UpdatePropertyInput): Record<s
  */
 export const propertyRepository = {
   /**
-   * Busca todas las propiedades con filtros opcionales.
+   * Busca todas las propiedades con filtros opcionales y paginación.
    */
-  async findAll(filters?: PropertyFilters): Promise<Property[]> {
+  async findAll(filters: PropertyFilters = {}, page: number = 1, limit: number = 10) {
+    // 1. Calculamos el salto (skip)
+    const skip = (page - 1) * limit;
+    
+    // 2. Construimos el filtro (usando tu helper existente)
     const where = buildWhereClause(filters);
 
-    const properties = await prisma.property.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
+    // 3. Ejecutamos búsqueda y conteo en paralelo
+    const [properties, total] = await Promise.all([
+      prisma.property.findMany({
+        where,
+        skip: skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.property.count({ where })
+    ]);
 
-    return properties.map(toProperty);
+    // 4. Transformamos los resultados y devolvemos el objeto esperado
+    return {
+      data: properties.map(toProperty), // Usamos tu transformador original
+      total: total
+    };
   },
 
   /**
