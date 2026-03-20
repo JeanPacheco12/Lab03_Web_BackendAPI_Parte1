@@ -24,4 +24,5 @@ Este lab es la primera parte del desarrollo de una API REST para la gestión de 
 *   **SQLite** (Persistencia de datos)
 *   **TypeScript** (Tipado estático)
 
-## Enlace de la explicación de la parte 1 de este lab: []
+## Enlace de la explicación de la parte 1 de este lab: 
+[https://youtu.be/HGOw51h4zFQ]
