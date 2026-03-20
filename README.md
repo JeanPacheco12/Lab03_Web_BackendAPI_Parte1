@@ -25,4 +25,4 @@ Este lab es la primera parte del desarrollo de una API REST para la gestión de 
 *   **TypeScript** (Tipado estático)
 
 ## Enlace de la explicación de la parte 1 de este lab: 
-[https://youtu.be/HGOw51h4zFQ]
+[https://youtu.be/D0S34a16tn8]
