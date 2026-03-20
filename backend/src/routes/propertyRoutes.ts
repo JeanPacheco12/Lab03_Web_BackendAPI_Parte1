@@ -33,15 +33,19 @@ const router = Router();
 
 /**
  * GET /api/properties
- * Lista todas las propiedades con filtros opcionales.
- *
- * Query params:
+ * Lista las propiedades con filtros opcionales y paginación.
+ * 
+ * Query params (Filtros):
  * - search: Búsqueda por texto
  * - propertyType: Filtro por tipo de propiedad
  * - operationType: Filtro por tipo de operación
  * - minPrice, maxPrice: Rango de precios
  * - minBedrooms: Habitaciones mínimas
  * - city: Filtro por ciudad
+ * 
+ * Query params (Paginación):
+ * - page: Número de página (default: 1)
+ * - limit: Cantidad de resultados por página (default: 10)
  */
 router.get('/', (req, res) => {
   void getAllProperties(req, res);
