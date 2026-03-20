@@ -28,14 +28,30 @@ import { createPropertySchema, updatePropertySchema, type PropertyFilters } from
 import { propertyRepository } from '../repositories/propertyRepository.js';
 
 // =============================================================================
-// GET /api/properties - Listar propiedades con filtros
+// GET /api/properties - Listar propiedades con filtros y paginación
 // =============================================================================
 // Reemplaza: localStorage.getItem('properties')
 // =============================================================================
 
 export async function getAllProperties(req: Request, res: Response): Promise<void> {
   try {
-    // Extraemos filtros de los query params
+    // 1. Extraemos y validamos los parámetros de paginación (con valores por defecto)
+    let page = req.query.page ? Number(req.query.page) : 1;
+    let limit = req.query.limit ? Number(req.query.limit) : 10;
+
+    // Validación: Rechazar negativos o valores no numéricos
+    if (isNaN(page) || page < 1 || isNaN(limit) || limit < 1) {
+      res.status(400).json({
+        success: false,
+        error: {
+          message: 'Los parámetros page y limit deben ser números positivos mayores a 0',
+          code: 'VALIDATION_ERROR',
+        },
+      });
+      return;
+    }
+
+    // 2. Extraemos filtros de los query params
     const filters: PropertyFilters = {
       search: req.query.search as string | undefined,
       propertyType: req.query.propertyType as PropertyFilters['propertyType'],
@@ -46,13 +62,27 @@ export async function getAllProperties(req: Request, res: Response): Promise<voi
       city: req.query.city as string | undefined,
     };
 
-    // Delegamos al repositorio
-    const properties = await propertyRepository.findAll(filters);
+    // 3. Obtener los datos paginados y el total desde el repositorio
+    // Aquí es probable que tu repositorio necesite una pequeña actualización para
+    // aceptar page y limit, y para devolver un objeto con los datos y el total de registros.
+    // Vamos a asumir que lo actualizaremos para que devuelva { data, total }
+    const { data: properties, total } = await propertyRepository.findAll(filters, page, limit);
 
+    // 4. Calcular el total de páginas
+    const totalPages = Math.ceil(total / limit);
+
+    // 5. Estructurar la respuesta con la metadata
     res.json({
       success: true,
-      data: properties,
+      data: properties, // Si la página está fuera de rango, Prisma devolverá un array vacío []
+      meta: {
+        total: total,
+        page: page,
+        limit: limit,
+        pages: totalPages
+      }
     });
+
   } catch (error) {
     console.error('Error al obtener propiedades:', error);
     res.status(500).json({
